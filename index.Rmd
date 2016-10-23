@@ -11,11 +11,13 @@ output:
   pdf_document:
     toc: yes
 ---
-##BIOL5081: Biostatistics   
+##BIOL5081: Biostatistics GradeR   
 
 ![](./can.do.png)
 
 The goal was statistical thinking through R and good data science. Data frames, EDA, and effective graphics can enhance our capacity to use statistical thinking to solve problems and examine evidence. Real data were used to both practice, time-bounded code (hackathon model), and follow-up revise workflow and analyses.
+
+The purpose of this workflow is to explore whether the philosophy effectively translated into effective learning and effective evaluation. The evidence examined were the test scores from each iteration.
 
 ###Time-bounded hackathon
 ```{r, test 1}
@@ -75,9 +77,11 @@ anova(m1, test="Chisq") #no indication that the dataset significantly influenced
 m2 <- kruskal.test(total~dataset, data = hackathon)
 m2 #still no difference
 
-#Inteactive viz using plot.ly or highchart
+#Interactive viz using plot.ly or highchart
 
 #final model as lm?
+
+#Note - discovery, these data are messy. Each column is not independent, i.e. the 5 questions scored on the Likert Scale. Need to be tidied up to examine whether a specific dimension was low and thus whether instruction was inadequate or could have been improved.
 
 ```
 
