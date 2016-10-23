@@ -57,13 +57,11 @@ cv <- v/m #coefficient of variation
 cv #very small CV for the total scores on code. that is good news.
 
 #frequencies of real dataset use
-ggplot(hackathon, aes(dataset)) + geom_bar(stat = "count") + coord_polar() 
+ggplot(hackathon, aes(dataset)) + geom_bar(stat = "count") + coord_polar() +xlab("") + ylab("")
 
 popular.datasets <- hackathon %>% group_by(dataset) %>% tally() 
 #ggplot(popular.datasets, aes(dataset, sort(n))) + 
   #geom_density() + coord_flip() 
-
-
 
 #looks like running was most popular
 c1<-chisq.test(popular.datasets$dataset, popular.datasets$n)
