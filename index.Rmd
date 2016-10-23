@@ -28,36 +28,56 @@ library(fitdistrplus)
 #read data
 metrics <-read.csv('data/BIOL5081.2016.grades.csv')
 #as_tibble(metrics)
+hackathon <- metrics %>% filter(metric == "test1")
+
 #table so people can see their scores
-kable(metrics)
+kable(hackathon)
 
 #data viz for pattern analysis and exploration of potential stats
-ggplot(metrics, aes(dataset, total)) + 
+ggplot(hackathon, aes(dataset, total)) + 
   geom_boxplot()
 
-ggplot(metrics, aes(total, colour = dataset)) +
+ggplot(hackathon, aes(total, colour = dataset)) +
          geom_freqpoly(binwidth = 1.5)
 
 #EDA on distribution
-shapiro.test(metrics$total) 
-qqnorm(metrics$total)
-descdist(metrics$total, boot = 1000)
+shapiro.test(hackathon$total) 
+qqnorm(hackathon$total)
+descdist(hackathon$total, boot = 1000)
 
-summary(metrics)
+summary(hackathon)
+#mean is 80% and median 84%. Nice!
 
-popular.datasets <- metrics %>% group_by(dataset) %>% tally()
+#variation
+m <- mean(hackathon$total)
+v<- sd(hackathon$total)
+cv <- v/m #coefficient of variation
+cv #very small CV for the total scores on code. that is good news.
+
+#frequencies of real dataset use
+popular.datasets <- hackathon %>% group_by(dataset) %>% tally()
 ggplot(popular.datasets, aes(dataset, sort(n))) + 
   geom_density() + coord_flip() 
 
-#indication that the dataset related to total score
-m1 <- lm(total~dataset, data = metrics)
-summary(m1)
-anova(m1) #no indication that the dataset significantly influenced scores
-#however, sample sizes very uneven
+#looks like running was most popular and the value of education least popular
+c1<-chisq.test(popular.datasets$dataset, popular.datasets$n)
+c1 #no difference but too few observations, so need to simulate
 
-m2 <- kruskal.test(total~dataset, data = metrics)
+c2<-chisq.test(popular.datasets$dataset, popular.datasets$n, simulate.p.value = TRUE, B = 10000)
+c2 #no difference in frequency even with 10,000 replicates of this test
+
+#indication that the dataset related to total score
+m1 <- lm(total~dataset, data = hackathon)
+summary(m1)
+anova(m1, test="Chisq") #no indication that the dataset significantly influenced scores
+
+#however, sample sizes very uneven
+m2 <- kruskal.test(total~dataset, data = hackathon)
 m2 #still no difference
 
+#Inteactive viz using plot.ly or highchart
+
+#final model as lm?
 
 ```
 
