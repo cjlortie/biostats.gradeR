@@ -17,7 +17,7 @@ output:
 
 The goal was statistical thinking through R and good data science. Data frames, EDA, and effective graphics can enhance our capacity to use statistical thinking to solve problems and examine evidence. Real data were used to both practice, time-bounded code (hackathon model), and follow-up revise workflow and analyses.
 
-The purpose of this workflow is to explore whether the philosophy effectively translated into effective learning and effective evaluation. The evidence examined were the test scores from each iteration.
+The purpose of this workflow is to explore whether the philosophy effectively translated into learning and evaluation. The evidence examined were the test scores from each iteration.
 
 ###Time-bounded hackathon
 ```{r, test 1}
@@ -57,11 +57,15 @@ cv <- v/m #coefficient of variation
 cv #very small CV for the total scores on code. that is good news.
 
 #frequencies of real dataset use
-popular.datasets <- hackathon %>% group_by(dataset) %>% tally()
-ggplot(popular.datasets, aes(dataset, sort(n))) + 
-  geom_density() + coord_flip() 
+ggplot(hackathon, aes(dataset)) + geom_bar(stat = "count") + coord_polar() 
 
-#looks like running was most popular and the value of education least popular
+popular.datasets <- hackathon %>% group_by(dataset) %>% tally() 
+#ggplot(popular.datasets, aes(dataset, sort(n))) + 
+  #geom_density() + coord_flip() 
+
+
+
+#looks like running was most popular
 c1<-chisq.test(popular.datasets$dataset, popular.datasets$n)
 c1 #no difference but too few observations, so need to simulate
 
