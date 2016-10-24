@@ -71,9 +71,10 @@ c2<-chisq.test(popular.datasets$dataset, popular.datasets$n, simulate.p.value = 
 c2 #no difference in frequency even with 10,000 replicates of this test
 
 #indication that the dataset related to total score
-m1 <- lm(total~dataset, data = hackathon)
+m1 <- lm(total~dataset, data = hackathon) #or just do aov? about the same really.
 summary(m1)
 anova(m1, test="Chisq") #no indication that the dataset significantly influenced scores
+shapiro.test(m1$residuals)
 
 #however, sample sizes very uneven
 m2 <- kruskal.test(total~dataset, data = hackathon)
