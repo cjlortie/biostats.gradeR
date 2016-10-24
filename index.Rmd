@@ -15,9 +15,18 @@ output:
 
 ![](./can.do.png)
 
-The goal was statistical thinking through R and good data science. Data frames, EDA, and effective graphics can enhance our capacity to use statistical thinking to solve problems and examine evidence. Real data were used to both practice, time-bounded code (hackathon model), and follow-up revise workflow and analyses.
+The goal of the [graduate-level course](https://cjlortie.github.io/r.stats/) was statistical thinking through R and good data science. Data frames, EDA, and effective graphics can enhance our capacity to use statistical thinking to solve problems and examine evidence. Real data were used to both practice, time-bounded code (hackathon model), and follow-up revise workflow and analyses.
 
 The purpose of this workflow is to explore whether the philosophy effectively translated into learning and evaluation. The evidence examined were the test scores from each iteration.
+
+<b>Meta-data for scoring dimensions</b>
+A total of 25% so 5 questions each worth 5 points. Likert Scale of 1 to 5 with 1 being low and 5 being awesome. The book ['The Art of Data Science'](https://leanpub.com/artofdatascience) by Peng and Metsui was extremely helpful. In particular, the EDA checklist provided in chapter 4.  
+
++ Can I understand what was done?
++ Can I repeat what was done?
++ Does the data viz effectively and thoroughly examine and show patterns/relations?
++ Is the EDA a clear and appropriate examination the evidence and demonstrates statistical thinking?
++ Is the final graphic and statistical test appropriate (tidy, polished, and meaningful) and suitable for publication?
 
 ###Time-bounded hackathon
 ```{r, test 1}
@@ -57,7 +66,11 @@ cv <- v/m #coefficient of variation
 cv #very small CV for the total scores on code. that is good news.
 
 #frequencies of real dataset use
-ggplot(hackathon, aes(dataset)) + geom_bar(stat = "count") + coord_polar() +xlab("") + ylab("")
+ggplot(hackathon, aes(dataset)) + geom_bar(stat = "count") + coord_polar(theta="x", start = 0, direction = 1) +xlab("") + ylab("")
+
+ggplot(hackathon, aes(dataset)) + geom_bar(stat = "count") + coord_polar(theta="y", start = 0, direction = 1) +xlab("") + ylab("")
+
+#these plots are tough. I do not want a barchart though.
 
 popular.datasets <- hackathon %>% group_by(dataset) %>% tally() 
 #ggplot(popular.datasets, aes(dataset, sort(n))) + 
