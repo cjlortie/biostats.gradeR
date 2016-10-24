@@ -97,7 +97,7 @@ m2 #still no difference
 library(plotly)
 x <- list(title = "ID")
 y <- list(title="scores")
-op <- plot_ly(hackathon, x = ~abbrev.id, y = ~ total, color = ~dataset) %>% layout(xaxis = x, yaxis = y)
+op <- plot_ly(hackathon, x = ~abbrev.id, y = ~ total, color = ~dataset, type = "scatter") %>% layout(xaxis = x, yaxis = y)
 op
 
 #Note - discovery, these data are messy. Each column is not independent, i.e. the 5 questions scored on the Likert Scale. Need to be tidied up to examine whether a specific dimension was low and thus whether instruction was inadequate or could have been improved.
