@@ -66,9 +66,7 @@ cv <- v/m #coefficient of variation
 cv #very small CV for the total scores on code. that is good news.
 
 #frequencies of real dataset use
-ggplot(hackathon, aes(dataset)) + geom_bar(stat = "count") + coord_polar(theta="x", start = 0, direction = 1) +xlab("") + ylab("")
-
-ggplot(hackathon, aes(dataset)) + geom_bar(stat = "count") + coord_polar(theta="y", start = 0, direction = 1) +xlab("") + ylab("")
+ggplot(hackathon, aes(dataset)) + geom_bar(stat = "count") +       coord_polar(theta="y", start = 0, direction = -1) +xlab("") + ylab("")
 
 #these plots are tough. I do not want a barchart though.
 
