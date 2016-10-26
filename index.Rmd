@@ -29,29 +29,35 @@ A total of 25% so 5 questions each worth 5 points. Likert Scale of 1 to 5 with 1
 + Is the final graphic and statistical test appropriate (tidy, polished, and meaningful) and suitable for publication?
 
 ###Time-bounded hackathon
-```{r, test 1}
+```{r, library loads}
 library(dplyr)
 library(ggplot2)
 library(tibble)
 library(knitr)
 library(fitdistrplus)
+library(plotly)
 
-#read data
+```
+
+###Time-bounded hackathon
+```{r, EDA for time-bounded}
+#read data####
 metrics <-read.csv('data/BIOL5081.2016.grades.csv')
 #as_tibble(metrics)
 hackathon <- metrics %>% filter(metric == "test1")
 
-#table so people can see their scores
+#table so people can see their scores#####
+#data viz as table
 kable(hackathon)
 
-#data viz for pattern analysis and exploration of potential stats
+#data viz for pattern analysis and exploration of potential stats####
 ggplot(hackathon, aes(dataset, total)) + 
   geom_boxplot()
 
 ggplot(hackathon, aes(total, colour = dataset)) +
          geom_freqpoly(binwidth = 1.5)
 
-#EDA on distribution
+#EDA on distribution####
 shapiro.test(hackathon$total) 
 qqnorm(hackathon$total)
 descdist(hackathon$total, boot = 1000)
@@ -59,7 +65,7 @@ descdist(hackathon$total, boot = 1000)
 summary(hackathon)
 #mean is 80% and median 84%. Nice!
 
-#variation
+#variation####
 m <- mean(hackathon$total)
 v<- sd(hackathon$total)
 cv <- v/m #coefficient of variation
@@ -68,13 +74,12 @@ cv #very small CV for the total scores on code. that is good news.
 #frequencies of real dataset use
 ggplot(hackathon, aes(dataset)) + geom_bar(stat = "count") +       coord_polar(theta="y", start = 0, direction = -1) +xlab("") + ylab("")
 
-#these plots are tough. I do not want a barchart though.
+#I do not want a barchart though. This one fun and beats dots.
 
-popular.datasets <- hackathon %>% group_by(dataset) %>% tally() 
-#ggplot(popular.datasets, aes(dataset, sort(n))) + 
-  #geom_density() + coord_flip() 
+#Tally up different dataset selections
+popular.datasets <- hackathon %>% group_by(dataset) %>% tally() #tally is similar to summarise count code
 
-#looks like running was most popular
+#Looks like running was most popular
 c1<-chisq.test(popular.datasets$dataset, popular.datasets$n)
 c1 #no difference but too few observations, so need to simulate
 
@@ -91,16 +96,132 @@ shapiro.test(m1$residuals)
 m2 <- kruskal.test(total~dataset, data = hackathon)
 m2 #still no difference
 
-#Interactive viz using plot.ly or highchart
+```
+
+```{r, simple summary model for hackathon}
+
+#Interactive viz using plot.ly or highchart####
 library(plotly)
 x <- list(title = "ID")
 y <- list(title="scores")
 op <- plot_ly(hackathon, x = ~abbrev.id, y = ~ total, color = ~dataset, type = "scatter") %>% layout(xaxis = x, yaxis = y)
-op
+op #I like this simple interactive plot for just seeing scores by topic but can hover over each to look up your grade
+m2 #no differences between dataset that individuals wrangled
+m #mean is an A
+cv #CV is approx 10% and typically this is classified as relatively low but this clearly depends on the domain of inquiry
 
-#Note - discovery, these data are messy. Each column is not independent, i.e. the 5 questions scored on the Likert Scale. Need to be tidied up to examine whether a specific dimension was low and thus whether instruction was inadequate or could have been improved.
 
 ```
 
+###Revised code
+An additional week was alllocated to further explore, examine, and annotate. The goal here was for the biostatisticians to examine variability in more depth including covariates and also generate a relatively more robust conclusion. 
 
+```{r, EDA for revised code}
+#filter from main dataframe
+revised.code <- metrics %>% filter(metric == "revised.code")
+#data viz in table
+kable(revised.code)
+#data viz as plot
+ggplot(revised.code, aes(dataset, total)) + 
+  geom_boxplot() #data viz for final grades
+
+#EDA distribution
+shapiro.test(revised.code$total) 
+qqnorm(revised.code$total)
+descdist(revised.code$total, boot = 1000) #drifted from normal a bit
+
+#EDA
+summary(revised.code)
+#mean is 93% and median 96%. Nice!
+#variation
+
+m <- mean(revised.code$total)
+v<- sd(revised.code$total)
+cv <- v/m #coefficient of variation
+cv #very small CV for the total scores on code. even lower than hackathon
+
+m3 <- kruskal.test(total~dataset, data = revised.code)
+m3 #no difference
+
+```
+
+```{r, revised code simple summary model}
+library(plotly)
+x <- list(title = "ID")
+y <- list(title="scores")
+p <- plot_ly(revised.code, x = ~abbrev.id, y = ~ total, color = ~dataset, type = "scatter") %>% layout(xaxis = x, yaxis = y)
+p #I like this simple interactive plot for just seeing scores by topic but can hover over each to look up your grade
+m3 #no differences between dataset that individuals wrangled
+m #mean is an A+
+cv #CV is approx 7% and thus lower than original code iteraction
+
+```
+
+###Code-score differences
+Was it worthwhile to do revised code?
+Anecodotally, yes. The code was much simpler, EDA generally more thorough. The conclusions were now more clearly stated, sometimes more robust, and a good indication that additional statistical certainly was applied in the models used.
+
+```{r, differences}
+str(metrics) #reminder of main dataframe
+#contrast the metric of revised.code to test1
+
+#data viz ####
+ggplot(metrics, aes(metric, total)) + geom_boxplot() #looks pretty different
+
+ggplot(metrics, aes(as.factor(abbrev.id), total, color=metric)) + geom_point() +coord_flip() + theme(panel.grid.major.x=element_blank(), panel.grid.minor.x=element_blank()) #I like this plot, it shows the individual differences. You follow each y-axis grid line to see if it went up
+
+#generate a single df with differences
+library(tidyr)
+differences <- inner_join(hackathon, revised.code, by = "abbrev.id")
+str(differences)
+#
+ggplot(differences, aes(total.x, total.y)) + geom_point(aes(color = dataset.x)) +geom_smooth(method= lm) + xlab("hackathon")+ ylab("revised code")  + theme(legend.title = element_blank()) #indication that in general a higher score starting point relates to a higher final score. However, could be important to test hackthon score versus relative difference instead.
+
+ggplot(differences, aes(total.x, (total.y-total.x))) + geom_point(aes(color = dataset.x)) +geom_smooth(method= lm) + xlab("hackathon")+ ylab("y-x")  + theme(legend.title = element_blank()) #perfect, this is what I wanted to know! Lower total score code went up MUCH more relative to higher initial scored code
+
+
+```
+
+```{r, simple differences model}
+#data viz
+ggplot(metrics, aes(metric, total)) + geom_boxplot() + 
+  geom_point(aes(color=dataset)) + 
+  theme(legend.title = element_blank()) #I like this.
+
+#in theory, given we just plotted as two groups, should do the equivalent of a one-way ANOVA
+m4 <- kruskal.test(total~metric, data = metrics)
+m4 #yes different
+library(dunn.test)
+dunn.test(metrics$total, metrics$metric)
+
+#however, I also know that data are paired so a paired t.test would be apppropriate but given uniform distribution, I am going to use a Wilcoxon-signed rank test.
+
+library(MASS)
+wilcox.test(differences$total.x, differences$total.y, paired=TRUE)
+#warning message so doing t-test too
+
+t.test(differences$total.y, differences$total.x, paired=TRUE)
+#mean difference is 2.9, wow
+#significantly difference
+
+```
+
+Note - given the data are uniform with very limited spread within each dimension, I am going to stop there. If the values of each of the 5 marking dimensions had more range, could have been fun to gather and then explore whether a particular indicator was most important. 
+
+###Conclusions
++ Wranging and data science have the capacity to better inform statistics.
++ The tidyverse is useful for setting up data for statistics and match statistical thinking.
++ Real data generate all the real challenges we face in science.
++ This marking instrument/scoring process could be more useful. Given that grades were so high, in future, interpretation of results is certainly important but justification of choice of statistics should also be more formally included and scored as well.
++ Further to the previous point, data science and statistics are an art. However, without demonstrating and explaining the philosophy behind some of the statistical decisions different individuals made, not every biostatistician came to the same conclusion. This could be a product of the dataset and approach, however without a more sensitive marking key and a possible follow-up wherein we each biostatistician presents what we did, we cannotsee why it is different. 
++ Revised code was more important to individuals that scored lower during the hackthon.
++ Dataset did not involve scores (i.e. each present similar but unique challenges, whew).
++ Everyone improved their scores with practice. Good!
++ Money cannot but happiness.
++ Runners are not getting faster.
++ Marriage, education, and gender are all important potential predictors of income.
++ Flossing likely reduces gingivial risks but not plaque.
++ Greenroofs are cooler and wetter.
++ Carbon output is relevant to the potential impacts of the Paris Agreement.
++ I could then rescore each of above conclusions based on certainly similar to AIC scores, and it is a good reminder that statistics are a tool to understand and infer patterns.
 
